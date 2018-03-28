@@ -131,6 +131,7 @@ var (
 		"buildUpstreamName":        buildUpstreamName,
 		"isLocationInLocationList": isLocationInLocationList,
 		"isLocationAllowed":        isLocationAllowed,
+		"isGrpcContained":          isGrpcContained,
 		"buildLogFormatUpstream":   buildLogFormatUpstream,
 		"buildDenyVariable":        buildDenyVariable,
 		"getenv":                   os.Getenv,
@@ -553,6 +554,20 @@ func isLocationAllowed(input interface{}) bool {
 	}
 
 	return loc.Denied == nil
+}
+
+func isGrpcContained(input interface{}) bool {
+	server, ok := input.(*ingress.Server)
+	if !ok {
+		glog.Errorf("expected an '*ingress.Server' type but %T was returned", input)
+		return false
+	}
+	for _, loc := range server.Locations {
+		if loc.GRPC {
+			return true
+		}
+	}
+	return false
 }
 
 var (
